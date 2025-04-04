@@ -1,5 +1,7 @@
 # Downloadmanager app
 
+---
+
 ## Run the app
 
 ### uv
