@@ -5,5 +5,9 @@
 ## 1st Sprint
 
 * Models
-  * [ ] Model #1
+  * [x] Path
+  * [x] File
+  * [x] PathRepository
+  * [x] FolderOrganizer
+  * [ ] Watchdog
   
