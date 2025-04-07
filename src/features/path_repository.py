@@ -8,7 +8,7 @@ from .models.file import MyFile
 class PathRepository:
 	def __init__(self, main_folder: Path) -> None:
 		self.main_folder = MyPath(main_folder)
-		self.folder_items = self.list_folder_items()
+		self.folder_items = self.list_folder_files()
 
 	def create_directory(self, dir_name) -> Path:
 		new_folder = self.main_folder.joinpath(dir_name)
@@ -18,24 +18,28 @@ class PathRepository:
 
 		return new_folder
 
-	def list_folder_items(self) -> list[MyFile]:
-		folder_items = []
-		files = [file for file in os.listdir(self.main_folder.path) if os.path.isfile(self.main_folder.joinpath(file))]
+	def get_file(self, path: str) -> MyFile | None:
+		path = Path(path)
+		try:
+			name, extension = path.name.rsplit(sep=".", maxsplit=1)
+			return MyFile(name, extension, MyPath(self.main_folder.joinpath(path)))
 
-		for file in files:
-			try:
-				name, extension = file.rsplit(".", 1)
-				folder_items.append(MyFile(name, extension, self.main_folder.joinpath(file)))
+		except ValueError as no_extension:
+			print(f"Error al tratar el archivo {repr(path)}: {no_extension}")
+			return None
 
-			except ValueError as no_extension:
-				print(f"Error al tratar el archivo {repr(file)}: {no_extension}")
+	def list_folder_files(self) -> list[MyFile]:
+		list_dir = os.listdir(self.main_folder.path)
+		path_files = [path for path in list_dir if os.path.isfile(self.main_folder.joinpath(path))]
+		files = []
 
-		return folder_items
+		for path in path_files:
+			file = self.get_file(path)
+			if file:
+				files.append(file)
+
+		return files
 
 	@staticmethod
 	def move_item(file: MyFile, new_path: Path) -> None:
-		os.replace(file.path, new_path.joinpath(file.complete_name()))
-
-	@staticmethod
-	def get_file(name: str, extension: str, path: Path) -> MyFile:
-		return MyFile(name, extension, path)
+		os.replace(file.get_path(), new_path.joinpath(file.get_name()))

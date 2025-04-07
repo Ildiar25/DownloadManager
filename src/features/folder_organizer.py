@@ -20,44 +20,42 @@ class FolderOrganizer:
 			for file in files:
 				self.file_manager.move_item(file, temp_folder)
 
-		files = self.file_manager.list_folder_items()
-		self.move_files(files)
 
-	def move_files(self, files: list[MyFile]):
-		for file in files:
-			if file.extension in self.ext_white_list["images"]:
-				self.file_manager.move_item(file, self.file_manager.create_directory("Imágenes"))
+	def __move_files(self, files: list[MyFile]):
+		pass
 
-			if file.extension in self.ext_white_list["audios"]:
-				self.file_manager.move_item(file, self.file_manager.create_directory("Audios"))
-
-			if file.extension in self.ext_white_list["videos"]:
-				self.file_manager.move_item(file, self.file_manager.create_directory("Vídeos"))
-
-			if file.extension in self.ext_white_list["documents"]:
-				self.file_manager.move_item(file, self.file_manager.create_directory("Documentos"))
-
-			if file.extension in self.ext_white_list["compress"]:
-				self.file_manager.move_item(file, self.file_manager.create_directory("Carpetas comprimidas"))
-
-			if file.extension in self.ext_white_list["executables"]:
-				self.file_manager.move_item(file, self.file_manager.create_directory("Ejecutables"))
-
-			if file.extension in self.ext_white_list["web"]:
-				self.file_manager.move_item(file, self.file_manager.create_directory("Internet"))
+		# for file in files:
+		# 	if file.extension in self.ext_white_list["images"]:
+		# 		self.file_manager.move_item(file, self.file_manager.create_directory("Imágenes"))
+		#
+		# 	if file.extension in self.ext_white_list["audios"]:
+		# 		self.file_manager.move_item(file, self.file_manager.create_directory("Audios"))
+		#
+		# 	if file.extension in self.ext_white_list["videos"]:
+		# 		self.file_manager.move_item(file, self.file_manager.create_directory("Vídeos"))
+		#
+		# 	if file.extension in self.ext_white_list["documents"]:
+		# 		self.file_manager.move_item(file, self.file_manager.create_directory("Documentos"))
+		#
+		# 	if file.extension in self.ext_white_list["compress"]:
+		# 		self.file_manager.move_item(file, self.file_manager.create_directory("Carpetas comprimidas"))
+		#
+		# 	if file.extension in self.ext_white_list["executables"]:
+		# 		self.file_manager.move_item(file, self.file_manager.create_directory("Ejecutables"))
+		#
+		# 	if file.extension in self.ext_white_list["web"]:
+		# 		self.file_manager.move_item(file, self.file_manager.create_directory("Internet"))
 
 	def __get_folder_files_recursively(self, main_path: Path) -> list[MyFile]:
 		folder_files = []
 
 		def _get_through_directories(actual_path: Path):
-			root, subfolders, files = next(os.walk(actual_path))
+			_, subfolders, files = next(os.walk(actual_path))
 			try:
 				for file in files:
-					try:
-						name, extension = file.rsplit(".", 1)
-						folder_files.append(self.file_manager.get_file(name, extension, actual_path.joinpath(file)))
-					except ValueError as no_extension:
-						print(f"Error al tratar el archivo {repr(file)}: {no_extension}")
+					fold_file = self.file_manager.get_file(str(actual_path.joinpath(file)))
+					if fold_file:
+						folder_files.append(fold_file)
 
 				for folder in subfolders:
 					_get_through_directories(actual_path.joinpath(folder))

@@ -11,5 +11,8 @@ class MyPath:
 		if not os.path.exists(self.path):
 			raise ValueError(f"Path {repr(self.path)} does not exist!")
 
-	def joinpath(self, folder: str) -> Path:
-		return self.path.joinpath(folder)
+	def joinpath(self, new_path: str | Path) -> Path:
+		return self.path.joinpath(new_path)
+
+	def __str__(self) -> str:
+		return f"{self.path}"
