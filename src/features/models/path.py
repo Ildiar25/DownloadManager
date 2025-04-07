@@ -9,7 +9,7 @@ class MyPath:
 
 	def __post_init__(self) -> None:
 		if not os.path.exists(self.path):
-			raise ValueError(f"Path {repr(self.path)} doesn't exist!")
+			raise ValueError(f"Path {repr(self.path)} does not exist!")
 
 	def joinpath(self, folder: str) -> Path:
 		return self.path.joinpath(folder)
