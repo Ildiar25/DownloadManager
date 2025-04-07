@@ -8,8 +8,31 @@
   * [x] MyPath
   * [x] MyFile
   * [x] PathRepository
-  * [x] FolderOrganizer
+  * [ ] FolderOrganizer
   * [ ] Watchdog
+
+## 2nd Sprint
+
+* GUI
+  * [ ] Main Window
+  * [ ] App Bar
+  * [ ] Options Section
+  * [ ] Work Info
+
+---
+
+---
+
+# 💻 Clients (Platform)
+
+Currently, Download Manager is only supported by **Windows Operating System**, **Unix Operating System** and **Macintosh Operating System**.
+
+* [x] Windows OS
+* [ ] MacOS
+* [ ] Linux
+* [ ] Android
+* [ ] iOS
+* [ ] Web
 
 # Models breakdown
 
@@ -24,3 +47,18 @@ Return:
 
 Methods:
  - Joinpath: Callable[[str], Path] || Returns itself
+
+
+### MyFile
+This models represents a File object.
+
+Parameters:
+ - Name: str || The file name
+ - Extension: str || The file extension
+ - Path: MyPath || The file path
+
+Return:
+ - None
+
+Methods:
+ - None

@@ -35,8 +35,9 @@ class PathRepository:
 
 		for path in path_files:
 			file = self.get_file(path)
-			if file:
-				files.append(file)
+			if not file:
+				continue
+			files.append(file)
 
 		return files
 

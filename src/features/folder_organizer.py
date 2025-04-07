@@ -54,8 +54,10 @@ class FolderOrganizer:
 			try:
 				for file in files:
 					fold_file = self.file_manager.get_file(str(actual_path.joinpath(file)))
-					if fold_file:
-						folder_files.append(fold_file)
+					if not fold_file:
+						continue
+
+					folder_files.append(fold_file)
 
 				for folder in subfolders:
 					_get_through_directories(actual_path.joinpath(folder))
