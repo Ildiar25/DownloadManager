@@ -1,6 +1,5 @@
 import flet as ft
 from interface.controls.appbar import AppBar
-from shared.themes import EmeraldTheme
 
 
 def main(page: ft.Page):
@@ -15,7 +14,7 @@ def main(page: ft.Page):
     page.fonts = {
         "MontserratR": r"fonts\Montserrat-Regular.ttf",
     }
-    page.theme = EmeraldTheme("MontserratR")
+    page.theme = ft.Theme(font_family="MontserratR", color_scheme_seed=ft.Colors.TEAL)
     page.theme_mode = ft.ThemeMode.DARK
     page.padding = 8
 
