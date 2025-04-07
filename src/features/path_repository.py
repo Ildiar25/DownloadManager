@@ -1,4 +1,5 @@
 import os
+import time
 from pathlib import Path
 
 from .models.path import MyPath
@@ -44,3 +45,8 @@ class PathRepository:
 	@staticmethod
 	def move_item(file: MyFile, new_path: Path) -> None:
 		os.replace(file.get_path(), new_path.joinpath(file.get_name()))
+
+		if os.listdir(file.path.path.parent):
+			return
+
+		os.rmdir(file.path.path.parent)

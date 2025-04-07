@@ -8,43 +8,48 @@ from src.features.path_repository import PathRepository
 class FolderOrganizer:
 	def __init__(self, main_path: Path, ext_white_dict: dict[str, list[str]], ext_black_list: list[str]) -> None:
 		self.file_manager = PathRepository(main_path)
-		self.ext_white_list = ext_white_dict
+		self.ext_white_dict = ext_white_dict
 		self.ext_black_list = ext_black_list
 		self.counter = 0
 
 	def organize_folder(self) -> None:
-		if os.listdir(self.file_manager.main_folder.path):
+		dir_content = os.listdir(self.file_manager.main_folder.path)
+		folders = [folder for folder in dir_content if os.path.isdir(self.file_manager.main_folder.path.joinpath(folder))]
+		main_folders = all([main_dir in folders for main_dir in list(self.ext_white_dict.keys())])
+		if dir_content and not main_folders:
 			files = self.__get_folder_files_recursively(self.file_manager.main_folder.path)
-			temp_folder = self.file_manager.create_directory("temp")
+			self.__move_files(files)
+			return
 
-			for file in files:
-				self.file_manager.move_item(file, temp_folder)
-
+		files = self.file_manager.list_folder_files()
+		self.__move_files(files)
 
 	def __move_files(self, files: list[MyFile]):
-		pass
+		for file in files:
+			if file.extension in self.ext_white_dict["images"]:
+				self.file_manager.move_item(file, self.file_manager.create_directory("Imágenes"))
 
-		# for file in files:
-		# 	if file.extension in self.ext_white_list["images"]:
-		# 		self.file_manager.move_item(file, self.file_manager.create_directory("Imágenes"))
-		#
-		# 	if file.extension in self.ext_white_list["audios"]:
-		# 		self.file_manager.move_item(file, self.file_manager.create_directory("Audios"))
-		#
-		# 	if file.extension in self.ext_white_list["videos"]:
-		# 		self.file_manager.move_item(file, self.file_manager.create_directory("Vídeos"))
-		#
-		# 	if file.extension in self.ext_white_list["documents"]:
-		# 		self.file_manager.move_item(file, self.file_manager.create_directory("Documentos"))
-		#
-		# 	if file.extension in self.ext_white_list["compress"]:
-		# 		self.file_manager.move_item(file, self.file_manager.create_directory("Carpetas comprimidas"))
-		#
-		# 	if file.extension in self.ext_white_list["executables"]:
-		# 		self.file_manager.move_item(file, self.file_manager.create_directory("Ejecutables"))
-		#
-		# 	if file.extension in self.ext_white_list["web"]:
-		# 		self.file_manager.move_item(file, self.file_manager.create_directory("Internet"))
+			elif file.extension in self.ext_white_dict["audios"]:
+				self.file_manager.move_item(file, self.file_manager.create_directory("Audios"))
+
+			elif file.extension in self.ext_white_dict["videos"]:
+				self.file_manager.move_item(file, self.file_manager.create_directory("Vídeos"))
+
+			elif file.extension in self.ext_white_dict["documents"]:
+				self.file_manager.move_item(file, self.file_manager.create_directory("Documentos"))
+
+			elif file.extension in self.ext_white_dict["compress"]:
+				self.file_manager.move_item(file, self.file_manager.create_directory("Carpetas comprimidas"))
+
+			elif file.extension in self.ext_white_dict["executables"]:
+				self.file_manager.move_item(file, self.file_manager.create_directory("Ejecutables"))
+
+			elif file.extension in self.ext_white_dict["web"]:
+				self.file_manager.move_item(file, self.file_manager.create_directory("Internet"))
+
+			else:
+				self.file_manager.move_item(file, self.file_manager.create_directory("Otros"))
+
 
 	def __get_folder_files_recursively(self, main_path: Path) -> list[MyFile]:
 		folder_files = []
@@ -71,7 +76,33 @@ class FolderOrganizer:
 
 
 def main():
-	organizer = FolderOrganizer(Path(r"C:\Users\jpast\Desktop\test_downloads"), {}, [])
+
+	white = {
+		"images":
+			["bmp", "eps", "gif", "heif", "heic", "jpg", "jpeg", "png", "psd", "svg", "tif", "tiff", "drawio", "webp",
+			 "ico"],
+
+		"audios":
+			["aac", "flac", "mid", "midi", "m4a", "mp3", "ogg", "wav", "wave", "wma"],
+
+		"videos":
+			["avi", "flv", "mov", "mp4", "mpeg", "mpg", "mkv", "ogg", "vob", "wmv"],
+
+		"documents":
+			["doc", "docx", "epub", "md", "odt", "pdf", "ppt", "pptx", "rtf", "txt", "xls", "xlsx", "csv", "ipynb"],
+
+		"compress":
+			["7z", "jar", "rar", "zip"],
+
+		"executables":
+			["bat", "com", "exe"],
+
+		"web":
+			["css", "eml", "html", "htm", "jar", "js", "msg", "ost", "php", "pst", "xml", "ttf", "otf"]
+	}
+	black = ["dll", "drv", "ini", "tmp", "temp", "crdownload", "part", "download"]
+
+	organizer = FolderOrganizer(Path(r"C:\Users\jpast\Desktop\test_downloads"), white, black)
 	organizer.organize_folder()
 
 
