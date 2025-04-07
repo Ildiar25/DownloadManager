@@ -23,8 +23,12 @@ class PathRepository:
 		files = [file for file in os.listdir(self.main_folder.path) if os.path.isfile(self.main_folder.joinpath(file))]
 
 		for file in files:
-			name, extension = file.rsplit(".", 1)
-			folder_items.append(MyFile(name, extension, self.main_folder.joinpath(file)))
+			try:
+				name, extension = file.rsplit(".", 1)
+				folder_items.append(MyFile(name, extension, self.main_folder.joinpath(file)))
+
+			except ValueError as no_extension:
+				print(f"Error al tratar el archivo {repr(file)}: {no_extension}")
 
 		return folder_items
 
