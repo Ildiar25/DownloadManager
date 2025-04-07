@@ -14,58 +14,56 @@ class FolderOrganizer:
 
 	def organize_folder(self) -> None:
 		if os.listdir(self.file_manager.main_folder.path):
-			files = self.__prepare_main_folder(self.file_manager.main_folder.path)
+			files = self.__get_folder_files_recursively(self.file_manager.main_folder.path)
 			temp_folder = self.file_manager.create_directory("temp")
 
 			for file in files:
 				self.file_manager.move_item(file, temp_folder)
 
 		files = self.file_manager.list_folder_items()
+		self.move_files(files)
 
+	def move_files(self, files: list[MyFile]):
 		for file in files:
 			if file.extension in self.ext_white_list["images"]:
 				self.file_manager.move_item(file, self.file_manager.create_directory("Imágenes"))
-				self.counter += 1
 
 			if file.extension in self.ext_white_list["audios"]:
 				self.file_manager.move_item(file, self.file_manager.create_directory("Audios"))
-				self.counter += 1
 
 			if file.extension in self.ext_white_list["videos"]:
 				self.file_manager.move_item(file, self.file_manager.create_directory("Vídeos"))
-				self.counter += 1
 
 			if file.extension in self.ext_white_list["documents"]:
 				self.file_manager.move_item(file, self.file_manager.create_directory("Documentos"))
-				self.counter += 1
 
 			if file.extension in self.ext_white_list["compress"]:
 				self.file_manager.move_item(file, self.file_manager.create_directory("Carpetas comprimidas"))
-				self.counter += 1
 
 			if file.extension in self.ext_white_list["executables"]:
 				self.file_manager.move_item(file, self.file_manager.create_directory("Ejecutables"))
-				self.counter += 1
 
 			if file.extension in self.ext_white_list["web"]:
 				self.file_manager.move_item(file, self.file_manager.create_directory("Internet"))
-				self.counter += 1
 
-	def __prepare_main_folder(self, main_path: Path) -> list[MyFile]:
+	def __get_folder_files_recursively(self, main_path: Path) -> list[MyFile]:
 		folder_files = []
 
 		def _get_through_directories(actual_path: Path):
 			root, subfolders, files = next(os.walk(actual_path))
 			try:
 				for file in files:
-					name, extension = file.rsplit(".", 1)
-					folder_files.append(self.file_manager.get_file(name, extension, Path(root).joinpath(file)))
+					try:
+						name, extension = file.rsplit(".", 1)
+						folder_files.append(self.file_manager.get_file(name, extension, actual_path.joinpath(file)))
+					except ValueError as no_extension:
+						print(f"Error al tratar el archivo {repr(file)}: {no_extension}")
 
 				for folder in subfolders:
-					_get_through_directories(Path(root).joinpath(folder))
+					_get_through_directories(actual_path.joinpath(folder))
 
 			except OSError as path_error:
-				print(f"There's {path_error} error while trying to access the next path: {root}")
+				print(f"There's {path_error} error while trying to access the next path: {actual_path}")
 				return
 
 		_get_through_directories(main_path)
