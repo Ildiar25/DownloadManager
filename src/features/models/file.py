@@ -16,7 +16,7 @@ class MyFile:
 		return self.path.path
 
 	def get_name(self) -> str:
-		return self.name + "." + self.extension
+		return self.name + self.extension
 
 	def __str__(self) -> str:
-		return f"File: {self.get_name()}, Path: {self.path}"
+		return f"Filename={repr(self.get_name())}, path={self.path}"

@@ -7,49 +7,62 @@ from src.features.path_repository import PathRepository
 
 class FolderOrganizer:
 	def __init__(self, main_path: Path, ext_white_dict: dict[str, list[str]], ext_black_list: list[str]) -> None:
-		self.file_manager = PathRepository(main_path)
-		self.ext_white_dict = ext_white_dict
-		self.ext_black_list = ext_black_list
+
+		self.main_path = main_path
+		self.white_dict = ext_white_dict
+		self.black_list = ext_black_list
+		self.folders_selected = ext_white_dict.keys()
+
+		self.file_manager = PathRepository(self.main_path)
+		self.old_folders = set()
+
 		self.counter = 0
 
 	def organize_folder(self) -> None:
-		dir_content = os.listdir(self.file_manager.main_folder.path)
-		folders = [folder for folder in dir_content if os.path.isdir(self.file_manager.main_folder.path.joinpath(folder))]
-		main_folders = all([main_dir in folders for main_dir in list(self.ext_white_dict.keys())])
+		dir_content = os.listdir(self.main_path)
+		folders = [folder for folder in dir_content if os.path.isdir(self.main_path.joinpath(folder))]
+		main_folders = all([main_dir in folders for main_dir in self.folders_selected])
+
 		if dir_content and not main_folders:
 			files = self.__get_folder_files_recursively(self.file_manager.main_folder.path)
 			self.__move_files(files)
+			print(self.file_manager.duplicated)
+			self.__clean_empty_folders(self.old_folders)
+			print(self.counter)
 			return
 
 		files = self.file_manager.list_folder_files()
 		self.__move_files(files)
+		print(self.counter)
 
 	def __move_files(self, files: list[MyFile]):
 		for file in files:
-			if file.extension in self.ext_white_dict["images"]:
+			if file.extension in self.white_dict.get("images", []):
 				self.file_manager.move_item(file, self.file_manager.create_directory("Imágenes"))
 
-			elif file.extension in self.ext_white_dict["audios"]:
+			elif file.extension in self.white_dict.get("audios", []):
 				self.file_manager.move_item(file, self.file_manager.create_directory("Audios"))
 
-			elif file.extension in self.ext_white_dict["videos"]:
+			elif file.extension in self.white_dict.get("videos", []):
 				self.file_manager.move_item(file, self.file_manager.create_directory("Vídeos"))
 
-			elif file.extension in self.ext_white_dict["documents"]:
+			elif file.extension in self.white_dict.get("documents", []):
 				self.file_manager.move_item(file, self.file_manager.create_directory("Documentos"))
 
-			elif file.extension in self.ext_white_dict["compress"]:
+			elif file.extension in self.white_dict.get("compress", []):
 				self.file_manager.move_item(file, self.file_manager.create_directory("Carpetas comprimidas"))
 
-			elif file.extension in self.ext_white_dict["executables"]:
+			elif file.extension in self.white_dict.get("executables", []):
 				self.file_manager.move_item(file, self.file_manager.create_directory("Ejecutables"))
 
-			elif file.extension in self.ext_white_dict["web"]:
+			elif file.extension in self.white_dict.get("web", []):
 				self.file_manager.move_item(file, self.file_manager.create_directory("Internet"))
 
 			else:
 				self.file_manager.move_item(file, self.file_manager.create_directory("Otros"))
 
+			self.counter += 1
+			self.old_folders.add(file.get_path().parent)
 
 	def __get_folder_files_recursively(self, main_path: Path) -> list[MyFile]:
 		folder_files = []
@@ -74,33 +87,46 @@ class FolderOrganizer:
 		_get_through_directories(main_path)
 		return folder_files
 
+	@staticmethod
+	def __clean_empty_folders(old_folders: set[Path]) -> None:
+
+		for folder in old_folders:
+			print(folder)
+			if folder.exists() and not folder.iterdir():
+				try:
+					folder.rmdir()
+
+				except OSError as os_error:
+					print(f"No se ha podido eliminar el directorio {repr(folder)}: {os_error}.")
+
 
 def main():
 
 	white = {
-		"images":
-			["bmp", "eps", "gif", "heif", "heic", "jpg", "jpeg", "png", "psd", "svg", "tif", "tiff", "drawio", "webp",
-			 "ico"],
-
-		"audios":
-			["aac", "flac", "mid", "midi", "m4a", "mp3", "ogg", "wav", "wave", "wma"],
-
-		"videos":
-			["avi", "flv", "mov", "mp4", "mpeg", "mpg", "mkv", "ogg", "vob", "wmv"],
-
-		"documents":
-			["doc", "docx", "epub", "md", "odt", "pdf", "ppt", "pptx", "rtf", "txt", "xls", "xlsx", "csv", "ipynb"],
-
-		"compress":
-			["7z", "jar", "rar", "zip"],
-
-		"executables":
-			["bat", "com", "exe"],
-
-		"web":
-			["css", "eml", "html", "htm", "jar", "js", "msg", "ost", "php", "pst", "xml", "ttf", "otf"]
+		# "images":
+		# 	[".bmp", ".eps", ".gif", ".heif", ".heic", ".jpg", ".jpeg", ".png", ".psd", ".svg", ".tif", ".tiff", ".drawio", ".webp",
+		# 	 ".ico"],
+		#
+		# "audios":
+		# 	[".aac", ".flac", ".mid", ".midi", ".m4a", ".mp3", ".ogg", ".wav", ".wave", ".wma"],
+		#
+		# "videos":
+		# 	[".avi", ".flv", ".mov", ".mp4", ".mpeg", ".mpg", ".mkv", ".ogg", ".vob", ".wmv"],
+		#
+		# "documents":
+		# 	[".doc", ".docx", ".epub", ".md", ".odt", ".pdf", ".ppt", ".pptx", ".rtf", ".txt", ".xls", ".xlsx", ".csv", ".ipynb"],
+		#
+		# "compress":
+		# 	[".7z", ".jar", ".rar", ".zip"],
+		#
+		# # "executables":
+		# # 	[".bat", ".com", ".exe"],
+		#
+		# "web":
+		# 	[".css", ".eml", ".html", ".htm", ".jar", ".js", ".msg", ".ost", ".php", ".pst", ".xml", ".ttf", ".otf"]
+		"other": []
 	}
-	black = ["dll", "drv", "ini", "tmp", "temp", "crdownload", "part", "download"]
+	black = [".dll", ".drv", ".ini", ".tmp", ".temp", ".crdownload", ".part", ".download"]
 
 	organizer = FolderOrganizer(Path(r"C:\Users\jpast\Desktop\test_downloads"), white, black)
 	organizer.organize_folder()

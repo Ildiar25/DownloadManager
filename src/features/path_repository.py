@@ -1,5 +1,3 @@
-import os
-import time
 from pathlib import Path
 
 from .models.path import MyPath
@@ -11,18 +9,21 @@ class PathRepository:
 		self.main_folder = MyPath(main_folder)
 		self.folder_items = self.list_folder_files()
 
+		self.duplicated = []
+
 	def create_directory(self, dir_name) -> Path:
 		new_folder = self.main_folder.joinpath(dir_name)
 
-		if not os.path.exists(new_folder):
-			os.makedirs(new_folder, exist_ok=True)
+		if not new_folder.exists():
+			new_folder.mkdir(parents=True, exist_ok=True)
 
 		return new_folder
 
 	def get_file(self, path: str) -> MyFile | None:
 		path = Path(path)
 		try:
-			name, extension = path.name.rsplit(sep=".", maxsplit=1)
+			name = path.stem
+			extension = path.suffix
 			return MyFile(name, extension, MyPath(self.main_folder.joinpath(path)))
 
 		except ValueError as no_extension:
@@ -30,8 +31,8 @@ class PathRepository:
 			return None
 
 	def list_folder_files(self) -> list[MyFile]:
-		list_dir = os.listdir(self.main_folder.path)
-		path_files = [path for path in list_dir if os.path.isfile(self.main_folder.joinpath(path))]
+		list_dir = self.main_folder.path.iterdir()
+		path_files = [path for path in list_dir if path.is_file()]
 		files = []
 
 		for path in path_files:
@@ -42,11 +43,10 @@ class PathRepository:
 
 		return files
 
-	@staticmethod
-	def move_item(file: MyFile, new_path: Path) -> None:
-		os.replace(file.get_path(), new_path.joinpath(file.get_name()))
 
-		if os.listdir(file.path.path.parent):
-			return
+	def move_item(self, file: MyFile, new_path: Path) -> None:
+		try:
+			file.get_path().rename(new_path.joinpath(file.get_name()))
 
-		os.rmdir(file.path.path.parent)
+		except FileExistsError:
+			self.duplicated.append(file)
