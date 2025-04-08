@@ -11,7 +11,7 @@ class PathRepository:
 
 		self.duplicated = []
 
-	def create_directory(self, dir_name) -> Path:
+	def create(self, dir_name) -> Path:
 		new_folder = self.main_folder.joinpath(dir_name)
 
 		if not new_folder.exists():
@@ -42,7 +42,6 @@ class PathRepository:
 			files.append(file)
 
 		return files
-
 
 	def move_item(self, file: MyFile, new_path: Path) -> bool:
 		try:
