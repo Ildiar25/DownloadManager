@@ -44,9 +44,11 @@ class PathRepository:
 		return files
 
 
-	def move_item(self, file: MyFile, new_path: Path) -> None:
+	def move_item(self, file: MyFile, new_path: Path) -> bool:
 		try:
 			file.get_path().rename(new_path.joinpath(file.get_name()))
+			return True
 
 		except FileExistsError:
 			self.duplicated.append(file)
+			return False

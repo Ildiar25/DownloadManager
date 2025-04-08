@@ -14,7 +14,7 @@ class FolderOrganizer:
 		self.folders_selected = ext_white_dict.keys()
 
 		self.file_manager = PathRepository(self.main_path)
-		self.old_folders = set()
+		self.old_folders = []
 
 		self.counter = 0
 
@@ -37,32 +37,42 @@ class FolderOrganizer:
 
 	def __move_files(self, files: list[MyFile]):
 		for file in files:
+			is_moved = False
 			if file.extension in self.white_dict.get("images", []):
-				self.file_manager.move_item(file, self.file_manager.create_directory("Imágenes"))
+				if self.file_manager.move_item(file, self.file_manager.create_directory("Imágenes")):
+					is_moved = True
 
 			elif file.extension in self.white_dict.get("audios", []):
-				self.file_manager.move_item(file, self.file_manager.create_directory("Audios"))
+				if self.file_manager.move_item(file, self.file_manager.create_directory("Audios")):
+					is_moved = True
 
 			elif file.extension in self.white_dict.get("videos", []):
-				self.file_manager.move_item(file, self.file_manager.create_directory("Vídeos"))
+				if self.file_manager.move_item(file, self.file_manager.create_directory("Vídeos")):
+					is_moved = True
 
 			elif file.extension in self.white_dict.get("documents", []):
-				self.file_manager.move_item(file, self.file_manager.create_directory("Documentos"))
+				if self.file_manager.move_item(file, self.file_manager.create_directory("Documentos")):
+					is_moved = True
 
 			elif file.extension in self.white_dict.get("compress", []):
-				self.file_manager.move_item(file, self.file_manager.create_directory("Carpetas comprimidas"))
+				if self.file_manager.move_item(file, self.file_manager.create_directory("Carpetas comprimidas")):
+					is_moved = True
 
 			elif file.extension in self.white_dict.get("executables", []):
-				self.file_manager.move_item(file, self.file_manager.create_directory("Ejecutables"))
+				if self.file_manager.move_item(file, self.file_manager.create_directory("Ejecutables")):
+					is_moved = True
 
 			elif file.extension in self.white_dict.get("web", []):
-				self.file_manager.move_item(file, self.file_manager.create_directory("Internet"))
+				if self.file_manager.move_item(file, self.file_manager.create_directory("Internet")):
+					is_moved = True
 
 			else:
-				self.file_manager.move_item(file, self.file_manager.create_directory("Otros"))
+				if self.file_manager.move_item(file, self.file_manager.create_directory("Otros")):
+					is_moved = True
 
-			self.counter += 1
-			self.old_folders.add(file.get_path().parent)
+			if is_moved:
+				self.counter += 1
+			self.old_folders.append(file.get_path().parent)
 
 	def __get_folder_files_recursively(self, main_path: Path) -> list[MyFile]:
 		folder_files = []
@@ -88,11 +98,10 @@ class FolderOrganizer:
 		return folder_files
 
 	@staticmethod
-	def __clean_empty_folders(old_folders: set[Path]) -> None:
-
+	def __clean_empty_folders(old_folders: list[Path]) -> None:
+		old_folders.reverse()
 		for folder in old_folders:
-			print(folder)
-			if folder.exists() and not folder.iterdir():
+			if folder.exists() and not list(folder.iterdir()):
 				try:
 					folder.rmdir()
 
@@ -103,27 +112,28 @@ class FolderOrganizer:
 def main():
 
 	white = {
-		# "images":
-		# 	[".bmp", ".eps", ".gif", ".heif", ".heic", ".jpg", ".jpeg", ".png", ".psd", ".svg", ".tif", ".tiff", ".drawio", ".webp",
-		# 	 ".ico"],
-		#
-		# "audios":
-		# 	[".aac", ".flac", ".mid", ".midi", ".m4a", ".mp3", ".ogg", ".wav", ".wave", ".wma"],
-		#
-		# "videos":
-		# 	[".avi", ".flv", ".mov", ".mp4", ".mpeg", ".mpg", ".mkv", ".ogg", ".vob", ".wmv"],
-		#
-		# "documents":
-		# 	[".doc", ".docx", ".epub", ".md", ".odt", ".pdf", ".ppt", ".pptx", ".rtf", ".txt", ".xls", ".xlsx", ".csv", ".ipynb"],
-		#
-		# "compress":
-		# 	[".7z", ".jar", ".rar", ".zip"],
-		#
-		# # "executables":
-		# # 	[".bat", ".com", ".exe"],
-		#
-		# "web":
-		# 	[".css", ".eml", ".html", ".htm", ".jar", ".js", ".msg", ".ost", ".php", ".pst", ".xml", ".ttf", ".otf"]
+		"images":
+			[".bmp", ".eps", ".gif", ".heif", ".heic", ".jpg", ".jpeg", ".png", ".psd", ".svg", ".tif", ".tiff", ".drawio", ".webp",
+			 ".ico"],
+
+		"audios":
+			[".aac", ".flac", ".mid", ".midi", ".m4a", ".mp3", ".ogg", ".wav", ".wave", ".wma"],
+
+		"videos":
+			[".avi", ".flv", ".mov", ".mp4", ".mpeg", ".mpg", ".mkv", ".ogg", ".vob", ".wmv"],
+
+		"documents":
+			[".doc", ".docx", ".epub", ".md", ".odt", ".pdf", ".ppt", ".pptx", ".rtf", ".txt", ".xls", ".xlsx", ".csv", ".ipynb"],
+
+		"compress":
+			[".7z", ".jar", ".rar", ".zip"],
+
+		"executables":
+			[".bat", ".com", ".exe"],
+
+		"web":
+			[".css", ".eml", ".html", ".htm", ".jar", ".js", ".msg", ".ost", ".php", ".pst", ".xml", ".ttf", ".otf"],
+
 		"other": []
 	}
 	black = [".dll", ".drv", ".ini", ".tmp", ".temp", ".crdownload", ".part", ".download"]
