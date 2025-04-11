@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Type
 
-from src.features.models.file import MyFile
-from src.features.path_repository import PathRepository
+from .models.file import MyFile
+from .path_repository import PathRepository
 
 
 class MoveFileStrategy(ABC):
@@ -88,7 +88,7 @@ class FolderOrganizer:
 		self.main_path = main_path
 		self.__white_dict = ext_white_dict
 		self.__black_list = ext_black_list
-		self.__folders_selected = ext_white_dict.keys()
+		self.__folders_selected = self.__get_folder_names()
 
 		self.__file_manager = PathRepository(self.main_path)
 		self.__move_controller = MoveController(self.__white_dict, self.__black_list)
@@ -98,17 +98,40 @@ class FolderOrganizer:
 
 	def organize_folder(self) -> None:
 		dir_content = list(self.main_path.iterdir())
-		folders = [folder for folder in dir_content if self.main_path.joinpath(folder).is_dir()]
+		folders = [folder.name for folder in dir_content if self.main_path.joinpath(folder).is_dir()]
 		main_folders = all([main_dir in folders for main_dir in self.__folders_selected])
 
 		if dir_content and not main_folders:
 			files = self.__get_folder_files_recursively(self.__file_manager.main_folder.path)
-			self.__move_files(files)
-			self.__clean_empty_folders(self.__old_folders)
+			self.__prepare_directory(files)
 			return
 
 		files = self.__file_manager.list_folder_files()
+		self.__prepare_directory(files)
+
+	def __prepare_directory(self, files: list[MyFile]) -> None:
+		for dir_name in self.__folders_selected:
+			self.__file_manager.create(dir_name)
 		self.__move_files(files)
+		self.__clean_empty_folders(self.__old_folders)
+
+	def __get_folder_names(self) -> list[str]:
+		folder_names = []
+		translation = {
+			"images": "Imágenes",
+			"audios": "Audios",
+			"videos": "Vídeos",
+			"documents": "Documentos",
+			"compress": "Carpetas Comprimidas",
+			"executables": "Instaladores",
+			"web": "Archivos Web",
+			"other": "Otros"
+		}
+		for key in self.__white_dict.keys():
+			if key in translation.keys():
+				folder_names.append(translation[key])
+
+		return folder_names
 
 	def __move_files(self, files: list[MyFile]):
 		for file in files:
