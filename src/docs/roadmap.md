@@ -8,7 +8,7 @@
   * [x] MyPath
   * [x] MyFile
   * [x] PathRepository
-  * [ ] FolderOrganizer
+  * [x] FolderOrganizer
   * [ ] Watchdog
 
 ## 2nd Sprint
@@ -62,3 +62,29 @@ Return:
 
 Methods:
  - None
+
+
+### PathRepository
+blablabla
+
+Parameters:
+ - parm1
+
+Return:
+ - parm1
+
+Methods:
+ - parm1
+
+
+### FolderOrganizer
+blablabla
+
+Parameters:
+ - parm1
+
+Return:
+ - parm1
+
+Methods:
+ - parm1
